@@ -24,7 +24,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.edmison.HdrHistogram.hive.udaf.GenericUDAFHdrHistogram.HdrHistogramEvaluator;
-import net.edmison.HdrHistogram.hive.udaf.GenericUDAFHdrHistogram.HdrHistogramEvaluator.HdrHistogramAggregationBuffer;
+import net.edmison.HdrHistogram.hive.udaf.GenericUDAFHdrHistogram.HdrHistogramEvaluatorBase.HdrHistogramAggregationBuffer;
 
 /**
  * Unit test for simple App.

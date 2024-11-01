@@ -3,7 +3,6 @@ package net.edmison.HdrHistogram.hive.udaf;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
-
 import org.HdrHistogram.AbstractHistogram;
 import org.HdrHistogram.AbstractHistogram.Percentiles;
 import org.HdrHistogram.Histogram;
@@ -33,8 +32,8 @@ import org.slf4j.LoggerFactory;
  *
  */
 @SuppressWarnings("deprecation")
-@Description(name = "hdrhistogram", value = "_FUNC_(x, precision) - Returns a HDR Histogram JSON of a set of numbers", extended = "Example: \n"
-    + "SELECT hdrhistogram(val, 3) from src;\n"
+@Description(name = "hdr_histogram", value = "_FUNC_(x, precision) - Returns a HDR Histogram JSON of a set of numbers", extended = "Example: \n"
+    + "SELECT hdr_histogram(val, 3) from src;\n"
     // TODO insert example output representation, could do x/y like
     // HistogramNumeric.
     + "This creates a HDR histogram for the specified set, with the specified result precision")
@@ -55,6 +54,7 @@ public class GenericUDAFHdrHistogram extends AbstractGenericUDAFResolver {
           "Only primitive type arguments are accepted but "
               + parameters[1].getTypeName() + " was passed as parameter 2.");
     }
+
     if (((PrimitiveTypeInfo) parameters[1]).getPrimitiveCategory() != PrimitiveObjectInspector.PrimitiveCategory.INT) {
       throw new UDFArgumentTypeException(1,
           "Only an integer argument is accepted as parameter 2, but "
@@ -70,16 +70,17 @@ public class GenericUDAFHdrHistogram extends AbstractGenericUDAFResolver {
     }
 
     switch (((PrimitiveTypeInfo) parameters[0]).getPrimitiveCategory()) {
-      case LONG:
-        return new HdrHistogramEvaluator();
       case BYTE: 
       case SHORT:
       case INT: 
-      case FLOAT:
-      case DOUBLE:
+      case LONG:
+        return new HdrHistogramEvaluator();
       case STRING:
       case VARCHAR:
       case CHAR:
+        return new HdrEncodedHistogramEvaluator();
+      case FLOAT:
+      case DOUBLE:
       case TIMESTAMP:
       case DECIMAL:
       case BOOLEAN:
@@ -91,7 +92,39 @@ public class GenericUDAFHdrHistogram extends AbstractGenericUDAFResolver {
     }
   }
 
-  public static class HdrHistogramEvaluator extends GenericUDAFEvaluator {
+  public static class HdrHistogramEvaluator extends HdrHistogramEvaluatorBase {
+
+    protected void recordValue(HdrHistogramAggregationBuffer myagg, Object vObject) {
+      long longValue = PrimitiveObjectInspectorUtils.getLong(vObject, valueOI);
+      if (longValue > 0) {
+        myagg.histogram.recordValue(longValue);
+      } else {
+        if (!warned) {
+          LOG.warn("HDR Histogram cannot process zero or negative values; Ignoring value <= 0: " + longValue);
+          warned = true;
+        }
+      }
+    }
+
+  }
+
+  public static class HdrEncodedHistogramEvaluator extends HdrHistogramEvaluatorBase {
+
+    protected void recordValue(HdrHistogramAggregationBuffer myagg, Object vObject) throws HiveException {
+      String value = PrimitiveObjectInspectorUtils.getString(vObject, valueOI);
+      if (value != null) {
+        try {
+          Histogram other = Histogram.fromString(value);
+          myagg.histogram.add(other);
+        } catch (Exception e) {
+          throw new HiveException(e);
+        }
+      }
+    }
+
+  }
+
+  public abstract static class HdrHistogramEvaluatorBase extends GenericUDAFEvaluator {
     // For input to PARTIAL1 and COMPLETE: ObjectInspectors for input data
     protected transient PrimitiveObjectInspector valueOI;
     protected transient PrimitiveObjectInspector precisionOI;
@@ -111,7 +144,7 @@ public class GenericUDAFHdrHistogram extends AbstractGenericUDAFResolver {
 
     // Helps attenuate warnings issued for values <=0 that HDR Histogram
     // cannot process.
-    private boolean warned = false;
+    protected boolean warned = false;
 
     @Override
     public ObjectInspector init(Mode m, ObjectInspector[] parameters)
@@ -182,19 +215,16 @@ public class GenericUDAFHdrHistogram extends AbstractGenericUDAFResolver {
         // to set the precision
         int precision = PrimitiveObjectInspectorUtils.getInt(parameters[1], precisionOI);
         myagg.histogram = new Histogram(precision);
-      }
+      }      
 
       // Process the current data point
-      long value = PrimitiveObjectInspectorUtils.getLong(parameters[0], valueOI);
-      if (value > 0) {
-        myagg.histogram.recordValue(value);
-      } else {
-        if (!warned) {
-          LOG.warn("HDR Histogram cannot process zero or negative values; Ignoring value <= 0: " + value);
-          warned = true;
-        }
-      }
+      recordValue(myagg, parameters[0]);
     }
+
+    protected abstract void recordValue(HdrHistogramAggregationBuffer myagg, Object vObject) throws HiveException;
+
+
+
 
     @Override
     public Object terminatePartial(AggregationBuffer agg) throws HiveException {
