@@ -23,8 +23,7 @@ import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import net.edmison.HdrHistogram.hive.udaf.GenericUDAFHdrHistogram.HdrHistogramEvaluator;
-import net.edmison.HdrHistogram.hive.udaf.GenericUDAFHdrHistogram.HdrHistogramEvaluatorBase.HdrHistogramAggregationBuffer;
+import net.edmison.HdrHistogram.hive.udaf.HdrHistogramEvaluatorBase.HdrHistogramAggregationBuffer;
 
 /**
  * Unit test for simple App.
