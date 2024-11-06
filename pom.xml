@@ -17,11 +17,7 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.useIncrementalCompilation>false</maven.compiler.useIncrementalCompilation>
-    <hadoop.version>3.4.0</hadoop.version>
-    <hive.execution.engine>mr</hive.execution.engine>
-    <hive.version>4.0.0</hive.version>
-    <tez.version>0.10.4</tez.version>
-
+    <hive.version>3.1.3</hive.version>
   </properties>
 
   <dependencies>
@@ -38,23 +34,11 @@
       <version>${hive.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.apache.hive</groupId>
-      <artifactId>hive-jdbc</artifactId>
-      <version>${hive.version}</version>
-    </dependency>
 
-    <!-- https://mvnrepository.com/artifact/org.apache.hive/hive-exec -->
     <dependency>
         <groupId>org.apache.hive</groupId>
         <artifactId>hive-exec</artifactId>
         <version>${hive.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.hive.hcatalog</groupId>
-      <artifactId>hive-webhcat-java-client</artifactId>
-      <version>${hive.version}</version>
     </dependency>
 
     <dependency>
@@ -68,53 +52,6 @@
       <artifactId>hive-common</artifactId>
       <version>${hive.version}</version>
     </dependency>
-
-    <dependency>
-      <groupId>org.reflections</groupId>
-      <artifactId>reflections</artifactId>
-      <version>0.9.8</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-mapreduce-client-common</artifactId>
-      <version>${hadoop.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-mapreduce-client-core</artifactId>
-      <version>${hadoop.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-hdfs-client</artifactId>
-      <version>${hadoop.version}</version>
-    </dependency>
-
-    <!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-common -->
-    <dependency>
-        <groupId>org.apache.hadoop</groupId>
-        <artifactId>hadoop-common</artifactId>
-        <version>${hadoop.version}</version>
-    </dependency>
-
-<!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-client-api -->
-<dependency>
-    <groupId>org.apache.hadoop</groupId>
-    <artifactId>hadoop-client-api</artifactId>
-        <version>${hadoop.version}</version>
-</dependency>
-
-<!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-client-api -->
-<dependency>
-    <groupId>org.apache.hadoop</groupId>
-    <artifactId>hadoop-client-runtime</artifactId>
-        <version>${hadoop.version}</version>
-</dependency>
-
-
 
     <dependency>
       <groupId>junit</groupId>
@@ -131,18 +68,7 @@
    </dependencies>
 
   <build>
-    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
       <plugins>
-        <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
-        <plugin>
-          <artifactId>maven-clean-plugin</artifactId>
-          <version>3.1.0</version>
-        </plugin>
-        <!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
-        <plugin>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>3.0.2</version>
-        </plugin>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.8.0</version>
@@ -151,32 +77,27 @@
             <target>${maven.compiler.target}</target>
           </configuration>
         </plugin>
+      
         <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.22.1</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>3.0.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-install-plugin</artifactId>
-          <version>2.5.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <version>2.8.2</version>
-        </plugin>
-        <!-- site lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#site_Lifecycle -->
-        <plugin>
-          <artifactId>maven-site-plugin</artifactId>
-          <version>3.7.1</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-project-info-reports-plugin</artifactId>
-          <version>3.0.0</version>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>3.6.0</version>
+          <executions>
+            <execution>
+              <phase>package</phase>
+              <goals>
+                <goal>shade</goal>
+              </goals>
+              <configuration>
+                <artifactSet>
+                  <includes>
+                    <include>org.hdrhistogram:*</include>
+                  </includes>
+                </artifactSet>
+              </configuration>
+            </execution>
+          </executions>
         </plugin>
       </plugins>
-    </pluginManagement>
   </build>
 </project>
