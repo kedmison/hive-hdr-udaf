@@ -36,7 +36,7 @@ public abstract class HdrHistogramEvaluatorBase extends GenericUDAFEvaluator {
     // For output of FINAL and COMPLETE
     // this will be an array of tuples of
     // value/percentile/totalcount/PercentileLogScale values
-    private transient ListObjectInspector datapointsOI;
+    private transient ObjectInspector datapointsOI;
 
     // Helps attenuate warnings issued for values <=0 that HDR Histogram
     // cannot process.
@@ -49,26 +49,7 @@ public abstract class HdrHistogramEvaluatorBase extends GenericUDAFEvaluator {
 
       partialOI = PrimitiveObjectInspectorFactory.writableBinaryObjectInspector;
 
-      // The output of FINAL and COMPLETE is a
-      // list of DoubleWritable structs that represent the final histogram as
-      // value, percentile, totalcount, pctlogscale values similar to what is
-      // produced in text output of HDR Histograms.
-      // one can plot on a scatter-plot by using value as the 'y' axis and
-      // pctlogscale as the 'x' axis, and using a logarithmic axis for the 'x' axis.
-      // this will replicate the HDR Histogram charts.
-      ArrayList<String> fieldNames = new ArrayList<String>();
-      ArrayList<ObjectInspector> fieldOIs = new ArrayList<ObjectInspector>();
-      fieldNames.add("value");
-      fieldOIs.add(PrimitiveObjectInspectorFactory.writableDoubleObjectInspector);
-      fieldNames.add("percentile");
-      fieldOIs.add(PrimitiveObjectInspectorFactory.writableDoubleObjectInspector);
-      fieldNames.add("totalcount");
-      fieldOIs.add(PrimitiveObjectInspectorFactory.writableDoubleObjectInspector);
-      fieldNames.add("pctlogscale");
-      fieldOIs.add(PrimitiveObjectInspectorFactory.writableDoubleObjectInspector);
-
-      datapointsOI = ObjectInspectorFactory.getStandardListObjectInspector(
-          ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames, fieldOIs));
+      datapointsOI = getOutputOIs();
 
       // init input parameters
       if (m == Mode.PARTIAL1 || m == Mode.COMPLETE) {
@@ -88,6 +69,30 @@ public abstract class HdrHistogramEvaluatorBase extends GenericUDAFEvaluator {
           throw new IllegalArgumentException("Unknown mode: " + m);
       }
 
+    }
+
+    protected ObjectInspector getOutputOIs() {
+        // The output of FINAL and COMPLETE is a
+          // list of DoubleWritable structs that represent the final histogram as
+          // value, percentile, totalcount, pctlogscale values similar to what is
+          // produced in text output of HDR Histograms.
+          // one can plot on a scatter-plot by using value as the 'y' axis and
+          // pctlogscale as the 'x' axis, and using a logarithmic axis for the 'x' axis.
+          // this will replicate the HDR Histogram charts.
+          ArrayList<String> fieldNames = new ArrayList<String>();
+          ArrayList<ObjectInspector> fieldOIs = new ArrayList<ObjectInspector>();
+          fieldNames.add("value");
+          fieldOIs.add(PrimitiveObjectInspectorFactory.writableDoubleObjectInspector);
+          fieldNames.add("percentile");
+          fieldOIs.add(PrimitiveObjectInspectorFactory.writableDoubleObjectInspector);
+          fieldNames.add("totalcount");
+          fieldOIs.add(PrimitiveObjectInspectorFactory.writableDoubleObjectInspector);
+          fieldNames.add("pctlogscale");
+          fieldOIs.add(PrimitiveObjectInspectorFactory.writableDoubleObjectInspector);
+
+          ListObjectInspector datapointsOI = ObjectInspectorFactory.getStandardListObjectInspector(
+              ObjectInspectorFactory.getStandardStructObjectInspector(fieldNames, fieldOIs));
+          return datapointsOI;
     }
 
     @Override
@@ -159,12 +164,17 @@ public abstract class HdrHistogramEvaluatorBase extends GenericUDAFEvaluator {
 
       AbstractHistogram hgram = myagg.histogram;
 
-      ArrayList<DoubleWritable[]> result = getDataPoints(hgram);
+      Object result = getResult(hgram);
       return result;
     }
 
-    protected static ArrayList<DoubleWritable[]> getDataPoints(AbstractHistogram hgram) {
-      Percentiles percentiles = hgram.percentiles(5);
+    protected Object getResult(AbstractHistogram histogram) {
+      return histogramToArray(histogram);
+    }
+
+
+    protected static ArrayList<DoubleWritable[]> histogramToArray(AbstractHistogram histogram) {
+      Percentiles percentiles = histogram.percentiles(5);
       Iterator<HistogramIterationValue> iterator = percentiles.iterator();
       ArrayList<DoubleWritable[]> result = new ArrayList<DoubleWritable[]>();
       while (iterator.hasNext()) {

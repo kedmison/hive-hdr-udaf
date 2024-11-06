@@ -51,7 +51,7 @@ public class TestGenericHdrHistogram {
         }
         reader.close();
 
-        baselineDatapoints = HdrHistogramEvaluator.getDataPoints(baselineHistogram);
+        baselineDatapoints = (ArrayList<DoubleWritable[]>) HdrHistogramEvaluator.histogramToArray(baselineHistogram);
     }
 
     @Test
