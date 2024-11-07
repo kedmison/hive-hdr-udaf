@@ -13,6 +13,8 @@ It provides two different HDR functions: one that returns a nested Array of Stru
 HDR Histograms are commutative.  This means that a two histograms, each for a separate 15-minute period, could be added together, and produce the same result as a single histogram covering the two 15-minute periods.  This enables all kinds of interesting properties.
 HDR Histograms also have a base64-encoding scheme that allows them to be persisted, transmitted, and/or re-constructed.
 
+The Base64 encoded histograms can be visualized using tools such as https://kedmison.github.io/hive-hdr-udaf/ChartjsExample/plotBase64Histograms.html or https://hdrhistogram.github.io/HdrHistogramJSDemo/plotFiles.html.
+
 In combination, these two characteristics combine to create some interesting potential use cases.
 
  * Map/Reduce: Histograms can be leveraged in parallelized map/reduce operations to work on large data sets.
