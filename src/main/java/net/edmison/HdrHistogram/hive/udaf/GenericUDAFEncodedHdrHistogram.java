@@ -13,9 +13,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * be inspired by GenericUDAFHistogramNumeric.java
- *
+ * GenericUDAFEncodedHdrHistogram is a user-defined aggregate function (UDAF) for Apache Hive
+ * that computes a High Dynamic Range (HDR) Histogram.
+ * 
+ * This UDAF takes two parameters: 
+ * <ol>
+ * <li> A column of discrete numeric values (bytes, shorts, ints, or longs) to be measured, 
+ * OR a string column containing base64 encoded histogram.
+ * <li> An integer precision value that determines the granularity of the histogram.
+ * </ol>
+ * 
+ * The resulting histogram is encoded into a base64 string that can be stored in a column,
+ * used as input to HDR histogram UDAFs, or copy/pasted into a HDR Histogram visualization tool.
+ * 
+ * Example usage:
+ * SELECT encode_hdr_histogram(val, 3) FROM src;
+ * 
+ * This method does not support floating point numbers, timestamps, decimals, booleans, or dates.
  */
+
 @SuppressWarnings("deprecation")
 @Description(name = "encode_hdr_histogram", value = "_FUNC_(x, precision) - Returns a HDR Histogram JSON of a set of numbers", extended = "Example: \n"
     + "SELECT hdr_histogram(val, 3) from src;\n"
@@ -25,6 +41,14 @@ import org.slf4j.LoggerFactory;
 public class GenericUDAFEncodedHdrHistogram extends AbstractGenericUDAFResolver {
   static final Logger LOG = LoggerFactory.getLogger(GenericUDAFEncodedHdrHistogram.class.getName());
 
+
+  /**
+   * Creates and returns an evaluator for discrete numeric values or for base64 encoded histograms.
+   * 
+   * @param parameters the parameter types supplied to the UDAF when it was called
+   * @return the evaluator for the given parameters
+   * @throws SemanticException if the parameters are invalid
+   */
   @Override
   public GenericUDAFEvaluator getEvaluator(TypeInfo[] parameters)
       throws SemanticException {
@@ -76,5 +100,4 @@ public class GenericUDAFEncodedHdrHistogram extends AbstractGenericUDAFResolver 
                 + parameters[0].getTypeName() + " is passed.");
     }
   }
-
 }

@@ -20,6 +20,17 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectIn
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.WritableBinaryObjectInspector;
 import org.apache.hadoop.io.BytesWritable;
 
+
+/**
+ * HdrHistogramEvaluatorBase is an abstract class that provides most of the implementation 
+ * needed for aggregating HDR Histograms as an Apache Hive UDAF.
+ * 
+ * This class provides an abstract recordValue method that must be implemented by subclasses
+ * to handle the data type of the column being aggregated.
+ * 
+ * This method provides a getResult method that returns the aggregated HDR Histogram as 
+ * an array of structs in the table/CSV format produced by HDR Histogram tools.
+ */
 public abstract class HdrHistogramEvaluatorBase extends GenericUDAFEvaluator {
     // For input to PARTIAL1 and COMPLETE: ObjectInspectors for input data
     protected transient PrimitiveObjectInspector valueOI;
@@ -71,6 +82,14 @@ public abstract class HdrHistogramEvaluatorBase extends GenericUDAFEvaluator {
 
     }
 
+    /**
+     * Return ObjectInspectors indicating the UDAF's output type is a list of 
+     * DoubleWritable structs that represent the final histogram as value, 
+     * percentile, totalcount, pctlogscale values similar to what is produced 
+     * in text output of HDR Histograms.
+     *  
+     * @return ObjectInspectors indicating the UDAF's output type.
+     */
     protected ObjectInspector getOutputOIs() {
         // The output of FINAL and COMPLETE is a
           // list of DoubleWritable structs that represent the final histogram as
@@ -113,7 +132,7 @@ public abstract class HdrHistogramEvaluatorBase extends GenericUDAFEvaluator {
       HdrHistogramAggregationBuffer myagg = (HdrHistogramAggregationBuffer) agg;
       if (myagg.histogram == null) {
         // initialize the histogram using the parameters context, 
-        // to set the precision
+        // to set the precision.  This is not known until the values are processed.
         int precision = PrimitiveObjectInspectorUtils.getInt(parameters[1], precisionOI);
         myagg.histogram = new Histogram(precision);
       }      
@@ -122,9 +141,15 @@ public abstract class HdrHistogramEvaluatorBase extends GenericUDAFEvaluator {
       recordValue(myagg, parameters[0]);
     }
 
+    /**
+     * This method must be implemented by subclasses to handle the data type of the 
+     * column being aggregated.
+     * 
+     * @param myagg The aggregation buffer.
+     * @param vObject The value (or base64-encoded histogram) to record.
+     * @throws HiveException
+     */
     protected abstract void recordValue(HdrHistogramAggregationBuffer myagg, Object vObject) throws HiveException;
-
-
 
 
     @Override
@@ -168,11 +193,26 @@ public abstract class HdrHistogramEvaluatorBase extends GenericUDAFEvaluator {
       return result;
     }
 
+    /**
+     * Return the aggregated HDR Histogram as an array of structs in the table/CSV 
+     * format produced by HDR Histogram tools.
+     * 
+     * @param histogram The histogram to convert.
+     * @return The histogram as an array of structs.
+     */
     protected Object getResult(AbstractHistogram histogram) {
       return histogramToArray(histogram);
     }
 
-
+    /**
+     * Convert the histogram to an array of structs in the table/CSV format produced 
+     * by HDR Histogram tools.
+     * This is a helper method that is implemented as a static, so that unit test code 
+     * can use the histogramToArray method.
+     * 
+     * @param histogram The histogram to convert.
+     * @return The histogram as an array of structs.
+     */
     protected static ArrayList<DoubleWritable[]> histogramToArray(AbstractHistogram histogram) {
       Percentiles percentiles = histogram.percentiles(5);
       Iterator<HistogramIterationValue> iterator = percentiles.iterator();

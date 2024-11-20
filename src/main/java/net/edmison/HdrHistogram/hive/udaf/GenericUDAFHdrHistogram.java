@@ -12,10 +12,28 @@ import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
- * be inspired by GenericUDAFHistogramNumeric.java
- *
+ * GenericUDAFHdrHistogram is a user-defined aggregate function (UDAF) for Apache Hive
+ * that computes a High Dynamic Range (HDR) Histogram.
+ * 
+ * This UDAF takes two parameters: 
+ * <ol>
+ * <li> A column of discrete numeric values (bytes, shorts, ints, or longs) to be measured, 
+ * OR a string column containing base64 encoded histogram. 
+ * <li> An integer precision value that determines the granularity of the histogram.
+ * </ol>
+ * 
+ * The resulting histogram is encoded into an array of structs in the table/CSV format 
+ * produced by HDR Histogram tools. This array can then be graphed to produce a chart
+ * in the HDR Histogram style. 
+ * 
+ * Example usage:
+ * SELECT hdr_histogram(val, 3) FROM src;
+ * 
+ * This method does not support floating point numbers, timestamps, decimals, booleans, or dates.
  */
+
 @SuppressWarnings("deprecation")
 @Description(name = "hdr_histogram", value = "_FUNC_(x, precision) - Returns a HDR Histogram JSON of a set of numbers", extended = "Example: \n"
     + "SELECT hdr_histogram(val, 3) from src;\n"
@@ -25,6 +43,13 @@ import org.slf4j.LoggerFactory;
 public class GenericUDAFHdrHistogram extends AbstractGenericUDAFResolver {
   static final Logger LOG = LoggerFactory.getLogger(GenericUDAFHdrHistogram.class.getName());
 
+  /**
+   * Creates and returns an evaluator for discrete numeric values or for base64 encoded histograms.
+   * 
+   * @param parameters the parameter types supplied to the UDAF when it was called
+   * @return the evaluator for the given parameters
+   * @throws SemanticException if the parameters are invalid
+   */
   @Override
   public GenericUDAFEvaluator getEvaluator(TypeInfo[] parameters)
       throws SemanticException {
