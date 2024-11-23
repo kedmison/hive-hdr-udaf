@@ -7,17 +7,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <script src="https://github.com/HdrHistogram/HdrHistogramJS/releases/download/v2.0.2/hdrhistogram.umd.js"></script>
-    <script>
-        // Log what global objects are available after script loads
-        window.addEventListener('load', function() {
-            console.log('Available globals:', {
-                hdr: window.hdr,
-                HdrHistogram: window.HdrHistogram,
-                hdrHistogram: window.hdrHistogram,
-                HDR: window.HDR
-            });
-        });
-    </script>
 
     <style>
         /* Previous styles remain the same until series-entry */
@@ -183,7 +172,6 @@
                 <div class="error"></div>
             `;            
             document.getElementById('seriesContainer').appendChild(seriesEntry);
-            initChart();
             return seriesEntry;
         }
 
@@ -288,6 +276,16 @@
                     maintainAspectRatio: false,
                     scales: {
                         x: {
+                            title: {
+                              display: true,
+                              align: 'center',
+                              text: 'Percentile',
+                              color: 'black',
+                              font: {
+                                  size: 14,
+                                  weight: 'bold',
+                              },
+                            },
                             type: 'logarithmic',
                             position: 'bottom',
                             ticks: {
