@@ -18,3 +18,4 @@ buildNumber.properties
 
 .fuse*
 .vscode/
+node_modules/

@@ -1,0 +1,29 @@
+{
+  "types": [
+    {"type": "feat", "section": "Features"},
+    {"type": "fix", "section": "Bug Fixes"},
+    {"type": "docs", "section": "Documentation"},
+    {"type": "style", "section": "Styling"},
+    {"type": "refactor", "section": "Code Refactoring"},
+    {"type": "perf", "section": "Performance Improvements"},
+    {"type": "test", "section": "Tests"},
+    {"type": "build", "section": "Build System"},
+    {"type": "ci", "section": "Continuous Integration"},
+    {"type": "chore", "section": "Chores"}
+  ],
+  "releaseCommitMessageFormat": "chore(release): {{currentTag}} [skip ci]",
+  "bumpFiles": [
+    {
+      "filename": "pom.xml",
+      "type": "xml",
+      "xpath": "//project/version"
+    }
+  ],
+  "packageFiles": [
+    {
+      "filename": "pom.xml",
+      "type": "xml",
+      "xpath": "//project/version"
+    }
+  ]
+}
