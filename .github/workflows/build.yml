@@ -1,0 +1,47 @@
+name: Build and Quality Checks
+
+on:
+  push:
+    tags: [ 'v*' ]
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      security-events: write
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0  # Required for SonarCloud analysis
+    
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: '8'
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Build with Maven
+      run: mvn -B package --file pom.xml -DskipTests
+    
+    - name: Run unit tests
+      run: mvn test
+    
+    - name: SonarCloud Analysis
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: mvn sonar:sonar -Dsonar.projectKey=kedmison_hive-hdr-udaf -Dsonar.organization=kedmison
+
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: target/*.jar
+        generate_release_notes: true
+        prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') }}
