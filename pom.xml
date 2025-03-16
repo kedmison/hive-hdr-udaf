@@ -66,7 +66,7 @@
     <dependency>
         <groupId>io.github.hiverunner</groupId>
         <artifactId>hiverunner</artifactId>
-        <version>6.1.0</version>
+        <version>7.0.0</version>
         <scope>test</scope>
     </dependency>
    </dependencies>
