@@ -32,7 +32,13 @@ jobs:
 
       - name: Create Release
         run: |
+          # Run standard-version to generate CHANGELOG.md (but not update pom.xml)
           npm run release
+          
+          # Get the latest tag
+          LATEST_TAG=$(git describe --abbrev=0 --tags)
+          
+          # Push the changes and tags
           git push --follow-tags origin main
 
       - name: Create GitHub Release

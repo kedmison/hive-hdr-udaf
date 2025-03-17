@@ -11,19 +11,5 @@
     {"type": "ci", "section": "Continuous Integration"},
     {"type": "chore", "section": "Chores"}
   ],
-  "releaseCommitMessageFormat": "chore(release): {{currentTag}} [skip ci]",
-  "bumpFiles": [
-    {
-      "filename": "pom.xml",
-      "type": "xml",
-      "xpath": "//project/version"
-    }
-  ],
-  "packageFiles": [
-    {
-      "filename": "pom.xml",
-      "type": "xml",
-      "xpath": "//project/version"
-    }
-  ]
+  "releaseCommitMessageFormat": "chore(release): {{currentTag}} [skip ci]"
 }
