@@ -42,7 +42,7 @@ jobs:
           git push --follow-tags origin main
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           body_path: CHANGELOG.md
