@@ -36,9 +36,6 @@ jobs:
     - name: Check code style
       run: mvn checkstyle:check
     
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml -DskipTests
-    
     - name: Run unit tests with coverage
       run: mvn verify
     
