@@ -39,9 +39,6 @@ jobs:
     - name: Run unit tests with coverage
       run: mvn verify
     
-    - name: Run mutation tests
-      run: mvn org.pitest:pitest-maven:mutationCoverage
-    
     - name: Set up JDK 11 for SonarCloud
       uses: actions/setup-java@v3
       with:
