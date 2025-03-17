@@ -1,6 +1,6 @@
 {
   "name": "hive-hdr-udaf",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "> [!NOTE] > This is a work in progress. > Please feel free to reach out to the author if you have any questions or comments",
   "main": "index.js",
   "scripts": {
