@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.2](https://github.com/kedmison/hive-hdr-udaf/compare/v1.0.1...v1.0.2) (2025-03-17)
+
+
+### Chores
+
+* ci: use Java 17 for Sonar ([3e6bd4e](https://github.com/kedmison/hive-hdr-udaf/commit/3e6bd4e607faaf4f0479a47d7e2da6a30ade725e))
+
 ### [1.0.1](https://github.com/kedmison/hive-hdr-udaf/compare/v0.5.0...v1.0.1) (2025-03-17)
 
 
