@@ -63,12 +63,6 @@
       <version>4.13.2</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-        <groupId>io.github.hiverunner</groupId>
-        <artifactId>hiverunner</artifactId>
-        <version>6.1.0</version>
-        <scope>test</scope>
-    </dependency>
    </dependencies>
 
   <build>
